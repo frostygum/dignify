@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { DyButton } from '@/components/ui'
+import { DyButton, DyIcon } from '@/components/ui'
 import {
   Card,
   CardContent,
@@ -8,9 +8,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  mdiPause,
+  mdiPlay,
+  mdiVolumeHigh,
+  mdiVolumeOff
+} from '@mdi/js'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue';
-import { useCounterStore } from '@/stores/counter'
+import { useCounterStore } from '@/stores/counter';
+import { parseBlob, selectCover } from 'music-metadata';
+import { uint8ArrayToBase64 } from 'uint8array-extras';
 
 const counterStore = useCounterStore()
 
@@ -18,6 +26,10 @@ const { count } = storeToRefs(counterStore)
 
 const audioPlayer = ref<HTMLAudioElement | null>(null); // Reference to the audio element
 const volumeControl = ref<number>(1);
+const isMuted = ref<boolean>(false);
+const isPlaying = ref<boolean>(false);
+const coverImageBase64 = ref<string>('');
+const currentTime = ref<number>(0);
 
 const handleFileChange = (event: Event) => {
   if (event.target === null)
@@ -28,13 +40,30 @@ const handleFileChange = (event: Event) => {
     return;
 
   const file = inputFileEvent.files[0];
+  console.log(file);
+
+  try {
+    parseBlob(file).then((res) => {
+      if (!res.common.picture) {
+        console.log('no cover image detected')
+        return;
+      }
+      
+      const cover = selectCover(res.common.picture);
+      if (!cover) {
+        console.log('no cover image detected')
+        return;
+      }
+
+      const img = `data:${cover.format};base64,${uint8ArrayToBase64(cover.data)}`;
+      coverImageBase64.value = img;
+    })
+  } catch (e) {
+    console.log(e)
+  }
   
   if (file && audioPlayer.value) {
-    // Create a URL for the selected file
-    // Assign the URL to the audio player's src
-    // This needs to be done after the DOM is updated, so a watcher or nextTick might be needed if not using a ref directly for src
-    audioPlayer.value.src =  URL.createObjectURL(file);
-    audioPlayer.value.play()
+    audioPlayer.value.src = URL.createObjectURL(file);
   } else {
     if (audioPlayer.value)
       audioPlayer.value.src = '';
@@ -48,12 +77,32 @@ const handleVolumeChange = (e: Event) => {
   const inputRangeEvent = e.target as HTMLInputElement;
   if (inputRangeEvent.value == null)
     return;
-  
+
   if (audioPlayer.value) {
     audioPlayer.value.volume = Number(inputRangeEvent.value);
   }
 }
 
+const handlePlayAudioPlayer = () => {
+  if (audioPlayer.value) {
+    isPlaying.value = !isPlaying.value
+
+    if (isPlaying.value)
+      audioPlayer.value.pause();
+    else
+      audioPlayer.value.play();
+  }
+}
+
+const handleTimeUpdate = () => {
+  if (audioPlayer.value) {
+    currentTime.value = audioPlayer?.value.currentTime;
+  }
+}
+
+const handleMuteAudioPlayer = () => {
+  isMuted.value = !isMuted.value
+}
 </script>
 
 <template>
@@ -81,8 +130,11 @@ const handleVolumeChange = (e: Event) => {
           <CardDescription>This is sample music player</CardDescription>
         </CardHeader>
         <CardContent>
+          <img :src="coverImageBase64" />
           <audio
             ref="audioPlayer"
+            @timeupdate="handleTimeUpdate"
+            :muted="isMuted"
             controls
           />
           <input
@@ -98,6 +150,19 @@ const handleVolumeChange = (e: Event) => {
             step="0.01"
             @input="handleVolumeChange"
           />
+          <Card>
+            <CardContent>
+              <dy-button variant="outline" size="icon_xs" @click="() => handlePlayAudioPlayer()">
+                <dy-icon class="w-5 h-5" :path="isPlaying ? mdiPlay : mdiPause" />
+              </dy-button>
+              
+              <dy-button variant="outline" size="icon_xs" @click="() => handleMuteAudioPlayer()">
+                <dy-icon class="w-5 h-5" :path="isMuted ? mdiVolumeOff : mdiVolumeHigh" />
+              </dy-button>
+
+              <span>{{ currentTime ?? '00:00' }}</span>
+            </CardContent>
+          </Card>
         </CardContent>
       </Card>
     </div>

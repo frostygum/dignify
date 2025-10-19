@@ -50,9 +50,9 @@ export default defineConfig({
         registerType: 'autoUpdate',
         includeAssets: ['favicon.ico', 'apple-icon-180.png', 'manifest-icon-512.maskable.png'],
         manifest: {
-          name: 'dignify',
-          short_name: 'dignify',
-          description: 'fin track & manager',
+          name: 'Dignify',
+          short_name: 'Dignify',
+          description: 'Music Player',
           theme_color: '#ffffff',
           start_url: '.',
           icons: [
@@ -122,14 +122,14 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["@sqlite.org/sqlite-wasm", "sqlocal"],
+    exclude: ['sqlocal'],
   },
   server: {
     port: Number(VITE_DEV_PORT ?? '3000'),
     allowedHosts: ['.ngrok-free.app'],
     headers: {
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
   preview: {
@@ -141,6 +141,9 @@ export default defineConfig({
       output: {
         experimentalMinChunkSize: 500000,
       },
-    },
+    }
   },
+  worker: {
+    format: 'es'
+  }
 })
