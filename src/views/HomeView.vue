@@ -196,7 +196,7 @@ onMounted(() => {
 
       <Card>
         <CardHeader>
-          Playlist
+          Music Library
         </CardHeader>
         <CardContent>
           <div class="grid grid-cols-1 gap-2">
