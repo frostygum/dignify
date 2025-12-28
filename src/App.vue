@@ -14,25 +14,28 @@ import {
 } from '@/components/ui/dialog'
 import { useMobile } from '@/hooks'
 import {
+  mdiDiscPlayer,
   mdiDotsCircle,
-  mdiHome,
-  mdiInvoiceList,
-  mdiWalletBifold,
+  mdiHome
 } from '@mdi/js'
 import DyMobileWrapper from './components/layouts/DyMobileWrapper.vue'
 
 import { useRouter } from 'vue-router'
 
+import { useMusicPlayer } from '@/stores/useMusicPlayerStore'
 import { useDialogStore } from '@/stores/useDialog'
 import { storeToRefs } from 'pinia'
 import DyButton from './components/ui/button/DyButton.vue'
 import DyIcon from './components/ui/icon/DyIcon.vue'
 
-const dialogStore = useDialogStore()
-const { isOpen, content } = storeToRefs(dialogStore)
-
 const router = useRouter()
 const isMobile = useMobile()
+const playerStore = useMusicPlayer()
+const dialogStore = useDialogStore()
+
+const { isPlaying, currentMusic, currentDuration, currentTimestamp } = storeToRefs(playerStore)
+const { isOpen, content } = storeToRefs(dialogStore)
+
 
 const navigators: DyNavigationBottomItemProps[] = [
   {
@@ -42,16 +45,10 @@ const navigators: DyNavigationBottomItemProps[] = [
     click: () => router.replace('/'),
   },
   {
-    label: 'Musics',
-    icon: mdiInvoiceList,
+    label: 'Player',
+    icon: mdiDiscPlayer,
     variant: 'default',
-    click: () => router.replace('/'),
-  },
-  {
-    label: 'Playlists',
-    icon: mdiWalletBifold,
-    variant: 'default',
-    click: () => router.replace('/'),
+    click: () => router.replace('/player'),
   }
 ]
 </script>
@@ -129,5 +126,16 @@ const navigators: DyNavigationBottomItemProps[] = [
     <RouterView />
     <div class="w-100" :class="{ 'h-20': !isMobile, 'h-24': isMobile }" />
   </dy-mobile-wrapper>
-  <dy-navigation-bottom :items="navigators" :is-mobile="isMobile" />
+  <dy-navigation-bottom
+    v-if="$route.meta.fullscreen ? false : true"
+    :items="navigators"
+    :is-mobile="isMobile"
+    :is-playing="isPlaying"
+    :title="currentMusic.title"
+    :artist="currentMusic.artist"
+    :cover="currentMusic.cover"
+    :duration="currentDuration"
+    :timestamp="currentTimestamp"
+    :toggle-player="() => playerStore.togglePlayer()"
+  />
 </template>

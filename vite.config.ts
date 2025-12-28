@@ -10,6 +10,7 @@ import tailwind from 'tailwindcss'
 import { VitePWA } from 'vite-plugin-pwa'
 import { ngrok } from 'vite-plugin-ngrok'
 import pluginExternal from 'vite-plugin-external'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // load env
 const {
@@ -37,6 +38,7 @@ export default defineConfig({
         jsstore: 'jsstore',
       },
     }),
+    nodePolyfills({ include: ['buffer'] }),
     renderPluginBasedEnv(vueDevTools(), VITE_DTOOLS_ENABLED),
     renderPluginBasedEnv(
       ngrok({

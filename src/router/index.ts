@@ -1,4 +1,4 @@
-import { mdiCog } from '@mdi/js'
+import { mdiChevronDown, mdiCog, mdiDotsVertical } from '@mdi/js'
 import { createRouter, createWebHistory } from 'vue-router'
 
 interface RouteMetaNavigationItem {
@@ -32,6 +32,24 @@ export default createRouter({
         navigation: {
           right: {
             icon: mdiCog,
+            route: '/configurations',
+          },
+        },
+      },
+    },
+    {
+      path: '/player',
+      name: 'player',
+      component: () => import('../views/MusicPlayerView.vue'),
+      meta: {
+        layout: 'MobileViewUserLayout',
+        navigation: {
+          left: {
+            icon: mdiChevronDown,
+            route: '/configurations',
+          },
+          right: {
+            icon: mdiDotsVertical,
             route: '/configurations',
           },
         },

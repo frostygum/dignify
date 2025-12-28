@@ -27,4 +27,11 @@ export interface DyNavigationBottomItemProps {
 export interface DyNavigationBottomProps {
   items?: DyNavigationBottomItemProps[]
   isMobile?: boolean
+  duration?: number,
+  timestamp?: number,
+  title?: string,
+  artist?: string,
+  cover?: string,
+  isPlaying?: boolean,
+  togglePlayer?: () => void
 }

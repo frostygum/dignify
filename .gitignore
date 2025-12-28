@@ -16,6 +16,8 @@ dist-ssr
 dev-dist
 coverage
 *.local
+coverage
+.scannerwork
 
 /cypress/videos/
 /cypress/screenshots/
