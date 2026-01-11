@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress';
 
 const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
   items: () => [],
+  activeMenu: '',
   isMobile: false,
   duration: 1,
   timestamp: 0,
@@ -19,7 +20,9 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
   artist: '-',
   cover: undefined,
   isPlaying: false,
-  togglePlayer: () => {}
+  hasPlayer: false,
+  togglePlayer: () => {},
+  handleClick: () => {}
 })
 </script>
 
@@ -27,7 +30,11 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
   <div class="fixed bottom-0 left-0 z-50 w-full h-auto">
     <div class="w-100 h-50">
       <div class="max-w-md m-auto relative h-full">
-        <div class="px-2 pb-1">
+        <div
+          v-if="hasPlayer"
+          class="px-2 pb-1 cursor-pointer"
+          @click="handleClick"
+        >
           <div>
             <Progress
               class="h-1 rounded-none rounded-tl rounded-tr"
@@ -48,12 +55,12 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                   />
                   <div
                     v-else  
-                    class="rounded-lg bg-blue-500 w-12 h-12 flex justify-center items-center"
+                    class="rounded-lg bg-gray-300 w-12 h-12 flex justify-center items-center"
                   >
                     <DyIcon :path="mdiMusicCircle" :size="24" />
                   </div>
 
-                  <div>
+                  <div class="pointer-events-none select-none">
                     <h4 class="text-xs font-semibold">{{ title || '-' }}</h4>
                     <p class="text-xs">{{ artist || '-' }}</p>
                   </div>
@@ -93,11 +100,11 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
             </CardContent>
           </Card>
         </div>
-        <div class="grid grid-cols-5 h-full max-w-lg mx-auto bg-card [&_svg]:size-5 border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+        <div class="flex justify-center h-full max-w-lg mx-auto bg-card [&_svg]:size-5 border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600">
           <dy-navigation-bottom-item
             v-for="(navigator, index) in props.items.slice(0, 5)"
             :key="`dy-bnav-${index}`"
-            :variant="navigator.variant"
+            :variant="activeMenu == navigator.name ? 'active' : 'default'"
             :icon="navigator.icon"
             :label="navigator.label"
             @click="() => (navigator.click ? navigator.click() : null)"

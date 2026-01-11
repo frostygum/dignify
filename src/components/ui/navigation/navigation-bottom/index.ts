@@ -18,6 +18,7 @@ export type DyNavigationBottomItemVariants = VariantProps<typeof dyNavigationBot
 
 export interface DyNavigationBottomItemProps {
   label?: string
+  name?: string,
   variant?: DyNavigationBottomItemVariants['variant']
   icon?: string
   click?: () => void
@@ -26,6 +27,7 @@ export interface DyNavigationBottomItemProps {
 
 export interface DyNavigationBottomProps {
   items?: DyNavigationBottomItemProps[]
+  activeMenu?: string,
   isMobile?: boolean
   duration?: number,
   timestamp?: number,
@@ -33,5 +35,7 @@ export interface DyNavigationBottomProps {
   artist?: string,
   cover?: string,
   isPlaying?: boolean,
-  togglePlayer?: () => void
+  hasPlayer?: boolean,
+  togglePlayer?: () => void,
+  handleClick?: () => void
 }

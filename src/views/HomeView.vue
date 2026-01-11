@@ -2,121 +2,47 @@
 
 import { onMounted, ref } from 'vue';
 import { DyButton, DyIcon } from '@/components/ui';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  mdiFileImport, mdiPlay
-} from '@mdi/js';
-import { parseBlob, selectCover } from 'music-metadata';
-import { uint8ArrayToBase64 } from 'uint8array-extras';
+import Separator from '@/components/ui/separator/Separator.vue';
+import { mdiFileImport, mdiMusicNotePlus } from '@mdi/js';
 import { useMusicPlayer, type MusicData } from '@/stores/useMusicPlayerStore';
-// import { useSQLocal } from "@/hooks/useSQLocal";
 
-const fileInputRef = ref<HTMLInputElement | null>(null);
-const playlist = ref<MusicData[]>([]);
+const tracks = ref<MusicData[]>([]);
 const player = useMusicPlayer();
-// const client = useSQLocal();
 
 import { client } from '@/plugins/sqlocal/client';
-import { musicTableSchema } from '@/plugins/sqlocal/schemas/music.schema'
+import { musicTableSchema } from '@/plugins/sqlocal/schemas/music.schema';
 import { sql } from 'drizzle-orm';
 
-const parseMusicData = (file: File): Promise<MusicData | null> => {
-  return new Promise((resolve) => {
-    parseBlob(file)
-      .then((res) => {
-        const data: MusicData = { blob: file };
+const hadlePlayMusic = async (id: number | undefined) => {
+  if (!id) {
+    return;
+  }
 
-        if (res.common.picture) {
-          const cover = selectCover(res.common.picture);
-          if (cover) {
-            data.cover = `data:${cover.format};base64,${uint8ArrayToBase64(cover.data)}`;
-          } else {
-            console.error('failed to parsed detected cover image')
-          }
-        } else {
-          console.error('no cover image detected')
-        }
+  const result = await client
+    .select()
+    .from(musicTableSchema)
+    .where(sql`${musicTableSchema.id} = ${id}`)
+    .limit(1)
 
-        data.title = res.common.title || '-';
-        data.artist = res.common.artist || '-';
-        data.album = res.common.album || '-';
-        data.filename = file.name ?? '-';
-        data.filetype = file.type ?? '-';
-        data.source = 'local';
+  const data = result[0];
 
-        return resolve(data);
-      })
-      .catch((e) => {
-        console.error(e);
-        return resolve(null);
-      });
+  player.push({
+    title: data.title,
+    artist: data.artist || undefined,
+    album: data.album || undefined,
+    cover: data.cover || undefined,
+    blob: data.blob ? new Blob([data.blob as BlobPart]) : undefined,
+    filename: data.filename || undefined,
+    filetype: data.filetype || undefined,
+    source: data.source || undefined
   });
+  player.pop();
+  player.load();
+  player.play();
 }
 
-const handleFileChange = (event: Event) => {
-  if (event.target === null)
-    return;
-
-  const inputFileEvent = event.target as HTMLInputElement;
-  if (inputFileEvent.files === null ||  inputFileEvent.files?.length == 0)
-    return;
-
-  for (const element of inputFileEvent.files) {
-    parseMusicData(element)
-      ?.then(data => {
-        if (data) {
-          saveMusic(data)
-          // playlist.value.push(data)
-        }
-      });
-  }
-}
-
-const handleLoadMusic = async (id: number) => {
+async function getListOfTracks() {
   try {
-    if (id) {
-      const result = await client
-        .select()
-        .from(musicTableSchema)
-        .where(sql`${musicTableSchema.id} = ${id}`)
-        .limit(1)
-
-      const data = result[0];
-
-      player.setCurrentMusic({
-        title: data.title,
-        artist: data.artist,
-        album: data.album,
-        cover: data.cover,
-        blob: new Blob([data.blob]),
-        filename: data.filename,
-        filetype: data.filetype,
-        source: data.source
-      })
-      player.startPlayer();
-    }
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-const handleInportFile = () => {
-  if (fileInputRef.value != null) {
-    fileInputRef.value.click();
-  }
-};
-
-async function countMusic() {
-  try {
-    const cnt = await client.$count(musicTableSchema)
-    if (cnt == 0) return;
-
     const list = await client
       .select({
         id: musicTableSchema.id,
@@ -126,7 +52,7 @@ async function countMusic() {
       .from(musicTableSchema)
 
     list.forEach((item) => {
-      playlist.value.push({
+      tracks.value.push({
         id: item.id,
         title: item.title,
         artist: item.artist ?? ''
@@ -137,90 +63,50 @@ async function countMusic() {
   }
 }
 
-async function saveMusic(data: MusicData) {
-  try {
-    const arrayBuffer = await data.blob.arrayBuffer();
-
-    client
-      .insert(musicTableSchema)
-      .values({
-        title: data.title ?? '',
-        artist: data.artist,
-        album: data.album,
-        cover: data.cover,
-        blob: data.blob ? new Uint8Array(arrayBuffer) : null,
-        filename: data.filename,
-        filetype: data.filetype,
-        source: 0
-      })
-      .then(() => {
-        console.log(`Success import music with title: [${data.title}]`)
-      })
-      .catch((e) => {
-        console.error(`Failed import music with title: [${data.title}]`, e)
-      })
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 onMounted(() => {
-  countMusic();
+  getListOfTracks();
 })
 </script>
 
 
 <template>
   <main>
-    <div class="p-4 grid grid-cols-1 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Music Player</CardTitle>
-          <CardDescription>This is sample music player</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <dy-button variant="outline" size="sm" @click="handleInportFile">
-            <dy-icon class="w-5 h-5" :path="mdiFileImport" />
-            Import
-          </dy-button>
-          <input
-            class="hidden"
-            ref="fileInputRef"
-            type="file"
-            accept=".wav,.aif,.aiff,.flac,.alac,.aac,.ogg,.mp3"
-            multiple
-            @change="handleFileChange"
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          Music Library
-        </CardHeader>
-        <CardContent>
-          <div class="grid grid-cols-1 gap-2">
-            <Card
-              v-for="file in playlist"
-              :key="file.title"
-            >
-              <CardContent>
-              <div class="flex justify-between items-center">
-                  <div>
-                    <p class="text-sm font-bold overflow-hidden text-ellipsis line-clamp-1">{{ file.title }}</p>
-                    <p class="text-xs">{{ file.artist }}</p>
-                  </div>
-                  <div>
-                    <dy-button variant="outline" size="icon_xs" @click="() => handleLoadMusic(file.id)">
-                      <dy-icon class="w-5 h-5" :path="mdiPlay" />
-                    </dy-button>
-                  </div>
+    <div class="grid grid-cols-1">
+      <div
+        v-for="file in tracks"
+        :key="file.title"
+      >
+        <div
+          class="w-full flex gap-2 justify-between items-center px-4 py-2 hover:bg-primary/5 cursor-pointer"
+          @click="() => hadlePlayMusic(file.id)"
+        >
+          <div class="flex items-center gap-2 justify-between">
+            <div>
+              <div
+                class="rounded-lg bg-gray-300 w-10 h-10 flex justify-center items-center"
+              >
+                <dy-icon :path="mdiFileImport" />
               </div>
-              </CardContent>
-            </Card>
+            </div>
+            <div>
+              <p class="text-sm font-bold overflow-hidden text-ellipsis line-clamp-1">
+                {{ file.title }}
+              </p>
+              <p class="text-xs">
+                {{ file.artist }}
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <div class="flex gap-2">
+            <dy-button variant="outline" size="icon_xs" @click="() => {}" disabled>
+              <dy-icon class="w-5 h-5" :path="mdiMusicNotePlus" />
+            </dy-button>
+          </div>
+        </div>
+        <div class="px-4">
+          <Separator orientation="horizontal" />
+        </div>
+      </div>
     </div>
 
     <div class="h-24">

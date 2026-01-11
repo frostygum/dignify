@@ -33,7 +33,7 @@ const renderButtonVariant = (
   >
     <div class="flex flex-col items-center">
       <dy-icon class="w-5 h-5" :path="icon ?? mdiCog" />
-      <span class="text-[0.6rem]">{{ props.label }}</span>
+      <span class="text-[0.6rem] pointer-events-none select-none">{{ props.label }}</span>
     </div>
   </dy-button>
 </template>

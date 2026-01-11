@@ -14,9 +14,9 @@ import {
 } from '@/components/ui/dialog'
 import { useMobile } from '@/hooks'
 import {
-  mdiDiscPlayer,
-  mdiDotsCircle,
-  mdiHome
+  mdiCog, mdiDotsCircle,
+  mdiHome,
+  mdiMagnify
 } from '@mdi/js'
 import DyMobileWrapper from './components/layouts/DyMobileWrapper.vue'
 
@@ -33,22 +33,30 @@ const isMobile = useMobile()
 const playerStore = useMusicPlayer()
 const dialogStore = useDialogStore()
 
-const { isPlaying, currentMusic, currentDuration, currentTimestamp } = storeToRefs(playerStore)
+const { playing } = storeToRefs(playerStore)
 const { isOpen, content } = storeToRefs(dialogStore)
 
 
 const navigators: DyNavigationBottomItemProps[] = [
   {
-    label: 'Home',
+    label: 'Library',
+    name: 'library',
     icon: mdiHome,
     variant: 'active',
     click: () => router.replace('/'),
   },
   {
-    label: 'Player',
-    icon: mdiDiscPlayer,
+    label: 'Search',
+    name: 'search',
+    icon: mdiMagnify,
+    click: () => {},
+  },
+  {
+    label: 'Config',
+    name: 'configs',
+    icon: mdiCog,
     variant: 'default',
-    click: () => router.replace('/player'),
+    click: () => router.replace('/configs'),
   }
 ]
 </script>
@@ -123,19 +131,27 @@ const navigators: DyNavigationBottomItemProps[] = [
       "
       :title="String($route.meta.title ?? '')"
     />
-    <RouterView />
+    <router-view v-slot="{ Component }">
+      <!-- Use a dynamic name for per-route transitions or a static name for all routes -->
+      <transition :name="'fade'" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
     <div class="w-100" :class="{ 'h-20': !isMobile, 'h-24': isMobile }" />
   </dy-mobile-wrapper>
   <dy-navigation-bottom
     v-if="$route.meta.fullscreen ? false : true"
+    :active-menu="$route.name ? String($route.name) : undefined"
     :items="navigators"
     :is-mobile="isMobile"
-    :is-playing="isPlaying"
-    :title="currentMusic.title"
-    :artist="currentMusic.artist"
-    :cover="currentMusic.cover"
-    :duration="currentDuration"
-    :timestamp="currentTimestamp"
-    :toggle-player="() => playerStore.togglePlayer()"
+    :is-playing="playing.state"
+    :title="playing.data.title"
+    :artist="playing.data.artist"
+    :cover="playing.data.cover"
+    :duration="playing.duration"
+    :timestamp="playing.timestamp"
+    :has-player="$route.name != 'player'"
+    :toggle-player="() => playerStore.toggle()"
+    :handle-click="() => router.push('/player')"
   />
 </template>

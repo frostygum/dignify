@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 
 import { useDateTime } from '@/hooks/useDuration';
 
@@ -9,8 +9,8 @@ export interface MusicData {
   artist?: string;
   album?: string;
   cover?: string;
-  blob?: File;
-  source?: string;
+  blob?: File | Blob;
+  source?: number;
   filename?: string;
   filetype?: string;
 }
@@ -18,42 +18,106 @@ export interface MusicData {
 const { secondsToFormattedTime } = useDateTime();
 
 export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
+  // current player context
   const _player = ref<HTMLAudioElement>(new Audio());
-  const isPlaying = shallowRef<boolean>(false);
-  const currentMusic = ref<MusicData>({});
-  const currentTimestamp = shallowRef<number>(0);
-  const currentDuration = shallowRef<number>(0);
+  const _playingData = ref<MusicData>({});
+  const _isPlaying = shallowRef<boolean>(false);
+  const _timestamp = shallowRef<number>(0);
+  const _duration = shallowRef<number>(0);
+
+  // music queue
+  const _queue = ref<MusicData[]>([]);
+
+  const playing = computed(() => {
+    return {
+      state: _isPlaying.value,
+      data: _playingData.value,
+      duration: _duration.value,
+      timestamp: _timestamp.value
+    }
+  })
+
+  const push = (data: MusicData) => {
+    _queue.value.push(data);
+  }
+
+  const pop = () => {
+    const latest = _queue.value.pop();
+    if (!latest) {
+      return;
+    }
+    _playingData.value = latest;
+  }
 
   const reset = () => {
     _player.value = new Audio();
-    isPlaying.value = false;
-    currentMusic.value = {};
-    currentTimestamp.value = 0;
-    currentDuration.value = 0
+    _playingData.value = {};
+    _isPlaying.value = false;
+    _timestamp.value = 0;
+    _duration.value = 0
   }
 
-  const setCurrentMusic = (data: MusicData) => {
-    currentMusic.value = data;
-  }
-
-  const updateMetadata = () => {
+  const updateSystemMetadata = () => {
     if ('mediaSession' in navigator) {
       const artworks = []
 
-      if (currentMusic.value?.cover) {
+      if (_playingData.value?.cover) {
         artworks.push({
-          src: currentMusic.value?.cover,
+          src: _playingData.value?.cover,
           sizes: "256x256",
           type: "image/png",
         })
       }
 
       navigator.mediaSession.metadata = new MediaMetadata({
-        title: currentMusic.value?.title,
-        artist: currentMusic.value?.artist,
-        album: currentMusic.value?.artist,
+        title: _playingData.value?.title,
+        artist: _playingData.value?.artist,
+        album: _playingData.value?.artist,
         artwork: artworks,
       })
+    }
+  }
+
+  const load = async () => {
+    if (!_playingData.value || !_playingData.value.blob) {
+      return;
+    }
+
+    try {
+      _player.value.src = URL.createObjectURL(_playingData.value.blob);
+
+      _player.value.ondurationchange = () => {
+        if (_player.value?.duration) {
+          _duration.value = Number.parseInt(_player.value?.duration.toFixed(0));
+        }
+      };
+
+      _player.value.onerror = (error) => {
+        reset();
+        console.error("Error loading audio metadata:", error);
+      };
+
+      _player.value.ontimeupdate = () => {
+        if (_player.value?.currentTime) {
+          _timestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
+        }
+      }
+
+      _player.value.onplay = () => {
+        if (_player.value) {
+          _isPlaying.value = true;
+        }
+      }
+
+      _player.value.onpause = () => {
+        if (_player.value) {
+          _isPlaying.value = false;
+        }
+      }
+
+      updateSystemMetadata();
+    } catch {
+      reset();
     }
   }
 
@@ -61,112 +125,86 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     if (_player.value) {
       _player.value.play()
         .then(() => {
-          isPlaying.value = true;
+          _isPlaying.value = true;
         })
         .catch(() => {
-          isPlaying.value = false;
+          _isPlaying.value = false;
         });
     } else {
-      isPlaying.value = false;
+      _isPlaying.value = false;
     }
   }
 
   const pause = () => {
     if (_player.value) {
-      isPlaying.value = false;
+      _isPlaying.value = false;
       _player.value.pause();
     }
   }
 
-  const togglePlayer = () => {
-    if (isPlaying.value) {
+  const toggle = () => {
+    if (_isPlaying.value) {
       pause();
     } else {
       play();
     }
   }
 
-  const getFormattedTimestamp = (): string => {
-    return secondsToFormattedTime(currentTimestamp.value)
+  const isNextAvailable = (): boolean => {
+    return _queue.value.length > 1
   }
 
-  const getFormattedDuration = (): string => {
-    return secondsToFormattedTime(currentDuration.value);
+  const isPrevAvailable = (): boolean => {
+    return false;
   }
 
   const next = () => {
+    if (!isNextAvailable()) {
+      return;
+    }
 
+    const latest = _queue.value.pop();
+    if (latest) {
+      _playingData.value = latest
+    } else {
+      reset();
+    }
   }
 
   const prev = () => {
+    if (!isPrevAvailable()) {
+      return;
+    }
 
+    return;
   }
 
   const mute = () => {
 
   }
 
-  const startPlayer = async () => {
-    if (!currentMusic.value) {
-      isPlaying.value = false;
-      return;
-    }
+  const getFormattedTimestamp = (): string => {
+    return secondsToFormattedTime(_timestamp.value)
+  }
 
-    try {
-      if (currentMusic.value.blob) {
-        _player.value.src = URL.createObjectURL(currentMusic.value.blob);
-
-        _player.value.ondurationchange = () => {
-          if (_player.value?.duration) {
-            currentDuration.value = Number.parseInt(_player.value?.duration.toFixed(0));
-          }
-        };
-
-        _player.value.onerror = (error) => {
-          reset();
-          console.error("Error loading audio metadata:", error);
-        };
-
-        _player.value.ontimeupdate = () => {
-          if (_player.value?.currentTime) {
-            currentTimestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
-          }
-        }
-
-        _player.value.onplay = () => {
-          if (_player.value) {
-            isPlaying.value = true;
-          }
-        }
-
-        _player.value.onpause = () => {
-          if (_player.value) {
-            isPlaying.value = false;
-          }
-        }
-
-        await play();
-        updateMetadata();
-      }
-    } catch {
-      isPlaying.value = false;
-    }
+  const getFormattedDuration = (): string => {
+    return secondsToFormattedTime(_duration.value);
   }
 
   return {
-    setCurrentMusic,
-    startPlayer,
+    load,
     play,
     pause,
     next,
     prev,
     mute,
-    togglePlayer,
+    toggle,
+    push,
+    pop,
+    isNextAvailable,
+    isPrevAvailable,
     getFormattedTimestamp,
     getFormattedDuration,
-    isPlaying,
-    currentMusic,
-    currentTimestamp,
-    currentDuration
+    playing
   }
 })

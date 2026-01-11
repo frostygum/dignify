@@ -9,8 +9,8 @@ import { mdiPlus } from '@mdi/js';
   .card {
     display: flex;
     flex-direction: column;
-    width: 300px;
-    height: 200px;
+    width: 360px;
+    height: 240px;
     background: black;
     border: 2px solid black;
     border-radius: 8px;

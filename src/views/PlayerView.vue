@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/card';
 import { DyButton, DyIcon } from '@/components/ui';
 import {
-  mdiMusicCircle,
   mdiPause,
   mdiPlay, mdiRepeat,
   mdiShuffle,
@@ -18,66 +17,50 @@ import DyCasette from '@/components/casette/DyCasette.vue';
 import { Slider } from '@/components/ui/slider';
 import { storeToRefs } from 'pinia';
 import { useMusicPlayer } from '@/stores/useMusicPlayerStore';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 const player = useMusicPlayer();
+const window = useWindowSize();
 
-const { isPlaying, currentMusic, currentDuration, currentTimestamp } = storeToRefs(player)
+const { playing } = storeToRefs(player)
 
 const title = ref<string>('-');
 const artist = ref<string>('-');
 
-const timestamp = computed(() => {
-  const a = [];
-  a.push(currentTimestamp.value)
-  return a;
+const computedArrayTimestamp = computed(() => {
+  return [playing.value.timestamp]
 })
 </script>
 
 <template>
   <main>
-    <div class="p-4 grid grid-cols-1 gap-4">
+    <div
+      class="p-4 grid grid-cols-1 gap-4"
+      :style="{
+        height: `${window.height.value < 139 ? window.height.value : window.height.value - 139}px`
+      }"
+    >
       <Card
-        class="bg-white bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] bg-[size:16px_16px]"
+        class="bg-white h-full bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] bg-[size:16px_16px]"
       >
-        <CardContent>
-          <div class="w-full flex justify-center">
-            <DyCasette />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card
-        class="bg-white bg-[radial-gradient(hsl(var(--border))_1px,transparent_1px)] bg-[size:16px_16px]"
-      >
-        <CardContent>
-          <div class="w-full flex justify-center">
-            <div
-              v-if="typeof currentMusic.cover !== 'undefined' && currentMusic.cover != ''"
-              class="rounded-lg w-48 h-48 flex justify-center items-center bg-cover bg-center"
-              :style="{
-                backgroundImage: `url(${currentMusic.cover})`
-              }"
-            />
-            <div
-              v-else
-              class="rounded-lg bg-blue-500 w-48 h-48 flex justify-center items-center"
-            >
-              <DyIcon :path="mdiMusicCircle" :size="48" />
+        <CardContent class="h-full flex flex-col">
+          <div class="w-full flex grow justify-center items-center">
+            <div>
+              <DyCasette />
+              <div
+                v-if="title || artist"
+                class="mt-4 mb-6"
+              >
+                <h3 class="font-bold text-center">{{ playing.data.title || '-' }}</h3>
+                <p class="text-center">{{ playing.data.artist || '-' }}</p>
+              </div>
             </div>
           </div>
 
-          <div
-            v-if="title || artist"
-            class="mt-4 mb-6"
-          >
-            <h3 class="font-bold text-center">{{ currentMusic.title || '-' }}</h3>
-            <p class="text-center">{{ currentMusic.artist || '-' }}</p>
-          </div>
-
           <Slider
-            v-model="timestamp"
+            v-model="computedArrayTimestamp"
             :default-value="[0]"
-            :max="currentDuration > 0 ? currentDuration : 1"
+            :max="playing.duration > 0 ? playing.duration : 1"
             :step="0.1"
             class="relative flex items-center select-none touch-none h-5"
             disabled
@@ -110,9 +93,9 @@ const timestamp = computed(() => {
                 variant="outline"
                 size="icon_lg"
                 class="rounded-lg [&_svg]:size-6"
-                @click="() => player.togglePlayer()"
+                @click="() => player.toggle()"
               >
-                <dy-icon :path="isPlaying ? mdiPause : mdiPlay" />
+                <dy-icon :path="playing.state ? mdiPause : mdiPlay" />
               </dy-button>
 
               <dy-button

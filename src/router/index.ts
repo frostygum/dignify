@@ -1,4 +1,4 @@
-import { mdiChevronDown, mdiChevronLeft, mdiCog, mdiDotsVertical } from '@mdi/js'
+import { mdiChevronDown, mdiChevronLeft, mdiDotsVertical, mdiMagnify } from '@mdi/js'
 import { createRouter, createWebHistory } from 'vue-router'
 
 interface RouteMetaNavigationItem {
@@ -24,15 +24,14 @@ export default createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'library',
       component: () => import('../views/HomeView.vue'),
       meta: {
-        title: 'Home',
+        title: 'Library',
         layout: 'MobileViewUserLayout',
         navigation: {
           right: {
-            icon: mdiCog,
-            route: '/configurations',
+            icon: mdiMagnify,
           },
         },
       },
@@ -40,7 +39,7 @@ export default createRouter({
     {
       path: '/player',
       name: 'player',
-      component: () => import('../views/MusicPlayerView.vue'),
+      component: () => import('../views/PlayerView.vue'),
       meta: {
         layout: 'MobileViewUserLayout',
         navigation: {
@@ -56,8 +55,8 @@ export default createRouter({
       },
     },
     {
-      path: '/configurations',
-      name: 'configurations',
+      path: '/configs',
+      name: 'configs',
       component: () => import('../views/ConfigView.vue'),
       meta: {
         title: 'Configurations',
@@ -65,7 +64,7 @@ export default createRouter({
       },
     },
     {
-      path: '/play',
+      path: '/playground',
       name: 'Playground',
       component: () => import('../views/PlaygroundView.vue'),
       meta: {
@@ -75,7 +74,7 @@ export default createRouter({
         navigation: {
           left: {
             icon: mdiChevronLeft,
-            route: '/configurations',
+            route: '/configs',
           }
         },
       },
