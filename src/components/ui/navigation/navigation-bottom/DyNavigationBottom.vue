@@ -33,7 +33,6 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
         <div
           v-if="hasPlayer"
           class="px-2 pb-1 cursor-pointer"
-          @click="handleClick"
         >
           <div>
             <Progress
@@ -42,7 +41,10 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
               :max="duration > 0 ? duration : 1"
             />
           </div>
-          <Card class="rounded-none rounded-bl rounded-br">
+          <Card
+            class="rounded-none rounded-bl rounded-br"
+            @click="handleClick"
+          >
             <CardContent>
               <div class="grid grid-cols-2">
                 <div class="flex gap-2 justify-start items-center justify-self-start">
@@ -72,7 +74,7 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                     size="icon_xs"
                     class="rounded-lg"
                     disabled
-                    @click="() => {}"
+                    @click.stop="() => {}"
                   >
                     <dy-icon :path="mdiSkipBackward" />
                   </dy-button>
@@ -81,7 +83,7 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                     variant="outline"
                     size="icon_xs"
                     class="rounded-lg"
-                    @click="togglePlayer"
+                    @click.stop="togglePlayer"
                   >
                     <dy-icon :path="isPlaying ? mdiPause : mdiPlay" />
                   </dy-button>
@@ -91,7 +93,7 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                     size="icon_xs"
                     class="rounded-lg"
                     disabled
-                    @click="() => {}"
+                    @click.stop="() => {}"
                   >
                     <dy-icon :path="mdiSkipForward" />
                   </dy-button>

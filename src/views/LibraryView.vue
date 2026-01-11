@@ -5,13 +5,15 @@ import { DyButton, DyIcon } from '@/components/ui';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { mdiFileImport, mdiMusicNotePlus } from '@mdi/js';
 import { useMusicPlayer, type MusicData } from '@/stores/useMusicPlayerStore';
+import { client } from '@/plugins/sqlocal/client';
+import { musicTableSchema } from '@/plugins/sqlocal/schemas/music.schema';
+import { sql } from 'drizzle-orm';
+import { storeToRefs } from 'pinia';
 
 const tracks = ref<MusicData[]>([]);
 const player = useMusicPlayer();
 
-import { client } from '@/plugins/sqlocal/client';
-import { musicTableSchema } from '@/plugins/sqlocal/schemas/music.schema';
-import { sql } from 'drizzle-orm';
+const { playing } = storeToRefs(player);
 
 const hadlePlayMusic = async (id: number | undefined) => {
   if (!id) {
@@ -27,6 +29,7 @@ const hadlePlayMusic = async (id: number | undefined) => {
   const data = result[0];
 
   player.push({
+    id: data.id,
     title: data.title,
     artist: data.artist || undefined,
     album: data.album || undefined,
@@ -78,6 +81,9 @@ onMounted(() => {
       >
         <div
           class="w-full flex gap-2 justify-between items-center px-4 py-2 hover:bg-primary/5 cursor-pointer"
+          :class="{
+            'bg-blue-100': file.id == playing.data.id
+          }"
           @click="() => hadlePlayMusic(file.id)"
         >
           <div class="flex items-center gap-2 justify-between">
@@ -89,10 +95,10 @@ onMounted(() => {
               </div>
             </div>
             <div>
-              <p class="text-sm font-bold overflow-hidden text-ellipsis line-clamp-1">
+              <p class="text-sm font-medium overflow-hidden text-ellipsis line-clamp-1">
                 {{ file.title }}
               </p>
-              <p class="text-xs">
+              <p class="text-xs font-normal">
                 {{ file.artist }}
               </p>
             </div>

@@ -25,7 +25,7 @@ export default createRouter({
     {
       path: '/',
       name: 'library',
-      component: () => import('../views/HomeView.vue'),
+      component: () => import('../views/LibraryView.vue'),
       meta: {
         title: 'Library',
         layout: 'MobileViewUserLayout',

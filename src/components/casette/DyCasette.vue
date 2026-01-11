@@ -6,11 +6,19 @@ import { mdiPlus } from '@mdi/js';
 </script>
 
 <style scoped>
+  .main {
+    display: flex;
+    justify-items: center;
+  }
+
   .card {
     display: flex;
     flex-direction: column;
-    width: 360px;
-    height: 240px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 310px;
+    height: 220px;
+    max-height: 240px;
     background: black;
     border: 2px solid black;
     border-radius: 8px;

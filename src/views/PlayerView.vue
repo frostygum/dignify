@@ -74,11 +74,16 @@ const computedArrayTimestamp = computed(() => {
           </div>
           <br />
           <div class="flex justify-between items-center">
-            <dy-button variant="outline" size="icon_xs" @click="() => {}">
+            <dy-button
+              variant="outline"
+              size="icon_xs"
+              disabled
+              @click="() => {}"
+            >
               <dy-icon class="w-5 h-5" :path="mdiShuffle" />
             </dy-button>
 
-            <div class="flex justify-between w-2/5">
+            <div class="flex justify-between gap-1">
               <dy-button
                 variant="outline"
                 size="icon_lg"
@@ -88,7 +93,6 @@ const computedArrayTimestamp = computed(() => {
               >
                 <dy-icon :path="mdiSkipBackward" />
               </dy-button>
-
               <dy-button
                 variant="outline"
                 size="icon_lg"
@@ -97,7 +101,6 @@ const computedArrayTimestamp = computed(() => {
               >
                 <dy-icon :path="playing.state ? mdiPause : mdiPlay" />
               </dy-button>
-
               <dy-button
                 variant="outline"
                 size="icon_lg"
@@ -109,7 +112,12 @@ const computedArrayTimestamp = computed(() => {
               </dy-button>
             </div>
 
-            <dy-button variant="outline" size="icon_xs" @click="() => {}">
+            <dy-button
+              variant="outline"
+              size="icon_xs"
+              disabled
+              @click="() => {}"
+            >
               <dy-icon :path="mdiRepeat" />
             </dy-button>
           </div>
