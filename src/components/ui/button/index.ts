@@ -23,7 +23,8 @@ export const dyButtonVariants = cva(
         lg: 'h-10 rounded-md px-8',
         icon_xs: 'h-7 w-7 rounded',
         icon: 'h-9 w-9 rounded',
-        icon_lg: 'h-12 w-12 rounded'
+        icon_lg: 'h-12 w-12 rounded',
+        icon_xl: 'h-14 w-14 rounded'
       },
     },
     defaultVariants: {

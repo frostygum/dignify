@@ -47,31 +47,31 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
           >
             <CardContent>
               <div class="grid grid-cols-2">
-                <div class="flex gap-2 justify-start items-center justify-self-start">
+                <div class="flex gap-2 justify-start items-center">
                   <div
                     v-if="typeof cover !== 'undefined' && cover != ''"
-                    class="rounded-lg w-12 h-12 bg-cover bg-center"
+                    class="rounded-lg w-12 h-12 bg-cover bg-center flex-none"
                     :style="{
                       backgroundImage: `url(${cover})`
                     }"
                   />
                   <div
                     v-else  
-                    class="rounded-lg bg-gray-300 w-12 h-12 flex justify-center items-center"
+                    class="rounded-lg bg-gray-300 w-12 h-12 flex justify-center items-center flex-none"
                   >
                     <DyIcon :path="mdiMusicCircle" :size="24" />
                   </div>
 
                   <div class="pointer-events-none select-none">
-                    <h4 class="text-xs font-semibold">{{ title || '-' }}</h4>
+                    <h4 class="text-xs font-semibold  overflow-hidden text-ellipsis line-clamp-1">{{ title || '-' }}</h4>
                     <p class="text-xs">{{ artist || '-' }}</p>
                   </div>
                 </div>
 
-                <div class="flex gap-1 w-1/2 justify-between items-center justify-self-end">
+                <div class="flex gap-1 justify-between items-center justify-self-end">
                   <dy-button
                     variant="outline"
-                    size="icon_xs"
+                    size="icon"
                     class="rounded-lg"
                     disabled
                     @click.stop="() => {}"
@@ -81,7 +81,7 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                   
                   <dy-button
                     variant="outline"
-                    size="icon_xs"
+                    size="icon"
                     class="rounded-lg"
                     @click.stop="togglePlayer"
                   >
@@ -90,7 +90,7 @@ const props = withDefaults(defineProps<DyNavigationBottomProps>(), {
                   
                   <dy-button
                     variant="outline"
-                    size="icon_xs"
+                    size="icon"
                     class="rounded-lg"
                     disabled
                     @click.stop="() => {}"

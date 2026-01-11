@@ -1,9 +1,68 @@
 <script setup lang="ts">
-  
 import { DyIcon } from '@/components/ui';
 import { mdiPlus } from '@mdi/js';
 
+const props = withDefaults(defineProps<{
+  image?: string;
+}>(), {
+  image: ''
+})
 </script>
+
+<template>
+  <div class="main">
+    <div class="card">
+      <div class="ups">
+        <div class="screw">
+          <dy-icon :path="mdiPlus" />
+        </div>
+        <div class="screw">
+          <dy-icon :path="mdiPlus" />
+        </div>
+      </div>
+      <div class="card1">
+        <div
+          class="parent_middle"
+        >
+           <div
+            class="child_middle middle_content"
+            :style="{
+              backgroundImage: `url(${props.image})`
+            }"
+          />
+          <div class="child_middle translucent">
+            <div class="sticker">
+            </div>
+          </div>
+          <div class="child_middle w-full h-full flex items-center justify-center">
+            <div class="yl">
+              <div class="roll">
+                <div class="s_wheel"></div>
+                <div class="tape"></div>
+                <div class="e_wheel"></div>
+              </div>
+              <p class="num"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="downs">
+        <div class="screw">
+          <dy-icon :path="mdiPlus" />
+        </div>
+        <div class="middle_down">
+          <div class="player">
+
+          </div>
+        </div>
+        <div class="screw">
+          <dy-icon :path="mdiPlus" />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style scoped>
   .main {
@@ -18,7 +77,6 @@ import { mdiPlus } from '@mdi/js';
     max-width: 100%;
     min-width: 310px;
     height: 220px;
-    max-height: 240px;
     background: black;
     border: 2px solid black;
     border-radius: 8px;
@@ -46,16 +104,37 @@ import { mdiPlus } from '@mdi/js';
     align-self: stretch;
   }
 
-  .middle_content {
+  .parent_middle {
     width: 100%;
     height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .child_middle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .middle_content {
+    border-radius: 10px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    opacity: 1;
+  }
+
+  .translucent {
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: rgb(140, 140, 140, 0.4);
     border-radius: 10px;
-    background-color: #FFFDD0;
-    background-image: radial-gradient(#bdb748 1px, transparent 1px);
-    background-size: 15px 15px; 
   }
 
   .downs {
@@ -94,7 +173,9 @@ import { mdiPlus } from '@mdi/js';
   }
 
   .sticker {
+    opacity: 0.5;
     width: 100%;
+    height: 26%;
     display: flex;
     justify-content: center;
     background-image: linear-gradient(
@@ -112,9 +193,12 @@ import { mdiPlus } from '@mdi/js';
   }
 
   .yl {
+    opacity: 1;
     width: 58%;
+    height: 34%;
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 4px;
     border-radius: 10px;
     background-color: #171717;
@@ -180,49 +264,3 @@ import { mdiPlus } from '@mdi/js';
     }
   }
 </style>
-
-<template>
-  <div class="main">
-    <div class="card">
-      <div class="ups">
-        <div class="screw">
-          <dy-icon :path="mdiPlus" />
-        </div>
-        <div class="screw">
-          <dy-icon :path="mdiPlus" />
-        </div>
-      </div>
-      <div class="card1">
-        <div class="middle_content">
-          <div class="sticker">
-            <div class="yl">
-              <div class="roll">
-                <div class="s_wheel"></div>
-                <div class="tape"></div>
-                <div class="e_wheel"></div>
-              </div>
-              <!-- <p class="num"></p> -->
-            </div>
-          </div>
-          <!-- <div class="or">
-            <p class="time"></p>
-          </div> -->
-        </div>
-      </div>
-      <div class="spacer"></div>
-      <div class="downs">
-        <div class="screw">
-          <dy-icon :path="mdiPlus" />
-        </div>
-        <div class="middle_down">
-          <div class="player">
-
-          </div>
-        </div>
-        <div class="screw">
-          <dy-icon :path="mdiPlus" />
-        </div>
-      </div>
-    </div>
-  </div>
-</template>

@@ -46,7 +46,9 @@ const computedArrayTimestamp = computed(() => {
         <CardContent class="h-full flex flex-col">
           <div class="w-full flex grow justify-center items-center">
             <div>
-              <DyCasette />
+              <dy-casette
+                :image="playing.data.cover"
+              />
               <div
                 v-if="title || artist"
                 class="mt-4 mb-6"
@@ -66,8 +68,8 @@ const computedArrayTimestamp = computed(() => {
             disabled
           />
           <div class="w-full flex justify-between">
-            <span>{{ player.getFormattedTimestamp() }}</span>
-            <span>{{ player.getFormattedDuration() }}</span>
+            <span class="text-xs">{{ player.getFormattedTimestamp() }}</span>
+            <span class="text-xs">{{ player.getFormattedDuration() }}</span>
           </div>
           <div>
 
@@ -86,7 +88,7 @@ const computedArrayTimestamp = computed(() => {
             <div class="flex justify-between gap-1">
               <dy-button
                 variant="outline"
-                size="icon_lg"
+                size="icon_xl"
                 class="rounded-lg [&_svg]:size-6"
                 disabled
                 @click="() => {}"
@@ -95,7 +97,7 @@ const computedArrayTimestamp = computed(() => {
               </dy-button>
               <dy-button
                 variant="outline"
-                size="icon_lg"
+                size="icon_xl"
                 class="rounded-lg [&_svg]:size-6"
                 @click="() => player.toggle()"
               >
@@ -103,7 +105,7 @@ const computedArrayTimestamp = computed(() => {
               </dy-button>
               <dy-button
                 variant="outline"
-                size="icon_lg"
+                size="icon_xl"
                 class="rounded-lg [&_svg]:size-6"
                 disabled
                 @click="() => {}"
