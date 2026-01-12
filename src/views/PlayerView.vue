@@ -48,6 +48,7 @@ const computedArrayTimestamp = computed(() => {
             <div>
               <dy-casette
                 :image="playing.data.cover"
+                :animate="playing.state"
               />
               <div
                 v-if="title || artist"

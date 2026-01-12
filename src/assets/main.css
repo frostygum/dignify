@@ -95,7 +95,7 @@
 }
 
 body {
-  touch-action: none !important;
+  /* touch-action: none !important; */
 }
 
 /* Hide scrollbar for Chrome, Safari, and Opera */
@@ -105,7 +105,7 @@ html::-webkit-scrollbar {
 
 /* Hide scrollbar for IE, Edge, and Firefox */
 html {
-  touch-action: none !important;
+  /* touch-action: none !important; */
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }

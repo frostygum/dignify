@@ -1,30 +1,27 @@
 <script setup lang="ts">
 import { DyIcon } from '@/components/ui';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-
 import Separator from '@/components/ui/separator/Separator.vue';
-import { mdiFileImport, mdiMusicNote, mdiSkull } from '@mdi/js';
-
-
+import { mdiDeleteAlert, mdiFileImport, mdiMusicNote, mdiSkull } from '@mdi/js';
 import { onMounted, shallowRef, ref} from 'vue';
-
-
 import { uint8ArrayToBase64 } from 'uint8array-extras';
-import { type MusicData } from '@/stores/useMusicPlayerStore';
+import { useMusicPlayer, type MusicData } from '@/stores/useMusicPlayerStore';
 import { parseBlob, selectCover } from 'music-metadata';
 import { useRouter } from 'vue-router';
 import { client } from '@/plugins/sqlocal/client';
 import { musicTableSchema } from '@/plugins/sqlocal/schemas/music.schema';
 
+const player = useMusicPlayer();
 const router = useRouter()
 const totalMusic = shallowRef<number>(0);
 
 const _fileInputRef = ref<HTMLInputElement | null>(null);
 
-async function countMusic() {
+const countMusic = async () => {
   try {
     const cnt = await client.$count(musicTableSchema)
     totalMusic.value = cnt
+    console.log(totalMusic.value)
   } catch (err) {
     console.log(err)
   }
@@ -66,7 +63,7 @@ async function saveMusic(data: MusicData) {
     })
 }
 
-const handleFileImportChange = (event: Event) => {
+const handleFileImportChange = async (event: Event) => {
   if (event.target === null) {
     return;
   }
@@ -81,13 +78,12 @@ const handleFileImportChange = (event: Event) => {
       ?.then(data => {
         if (data) {
           saveMusic(data)
-          // playlist.value.push(data)
         }
       });
   }
 }
 
-const parseMusicData = (file: File): Promise<MusicData | null> => {
+const parseMusicData = async (file: File): Promise<MusicData | null> => {
   return new Promise((resolve) => {
     parseBlob(file)
       .then((res) => {
@@ -119,6 +115,18 @@ const parseMusicData = (file: File): Promise<MusicData | null> => {
       });
   });
 }
+
+const handleClearAllMusicData = async () => {
+  try {
+    player.pause()
+    player.reset()
+    player.updateSystemMetadata()
+    await client.delete(musicTableSchema);
+    await countMusic()
+  } catch (err) {
+    console.log(err)
+  }
+}
 </script>
 
 <template>
@@ -139,6 +147,20 @@ const parseMusicData = (file: File): Promise<MusicData | null> => {
               </div>
               <div>
                 {{ totalMusic }}
+              </div>
+            </div>
+            
+            <div class="px-4">
+              <Separator />
+            </div>
+
+            <div
+              class="w-full flex rounded-md justify-between items-center px-4 py-2 hover:bg-primary/5 cursor-pointer"
+              @click="() => handleClearAllMusicData()"
+            >
+              <div class="flex items-center gap-2">
+                <dy-icon :path="mdiDeleteAlert" />
+                <div>Clear All Music</div>
               </div>
             </div>
             

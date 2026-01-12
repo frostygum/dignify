@@ -4,8 +4,10 @@ import { mdiPlus } from '@mdi/js';
 
 const props = withDefaults(defineProps<{
   image?: string;
+  animate?: boolean;
 }>(), {
-  image: ''
+  image: '',
+  animate: false
 })
 </script>
 
@@ -37,9 +39,19 @@ const props = withDefaults(defineProps<{
           <div class="child_middle w-full h-full flex items-center justify-center">
             <div class="yl">
               <div class="roll">
-                <div class="s_wheel"></div>
-                <div class="tape"></div>
-                <div class="e_wheel"></div>
+                <div
+                  class="s_wheel"
+                  :class="{
+                    a_wheel: animate
+                  }"
+                />
+                <div class="tape" />
+                <div
+                  class="e_wheel"
+                  :class="{
+                    a_wheel: animate
+                  }"
+                />
               </div>
               <p class="num"></p>
             </div>
@@ -222,6 +234,16 @@ const props = withDefaults(defineProps<{
     background-color: lightgray;
   }
 
+  .window {
+    background-color: white;
+    width: auto;
+    height: 2em;
+  }
+
+  .a_wheel {
+    animation: 2s run infinite linear;
+  }
+
   .s_wheel {
     display: flex;
     align-items: center;
@@ -234,13 +256,6 @@ const props = withDefaults(defineProps<{
     border: 2px dashed #fff;
     box-shadow: 0 0 0 4.4px #fff;
     border-radius: 50%;
-    animation: 2s run infinite linear;
-  }
-
-  .window {
-    background-color: white;
-    width: auto;
-    height: 2em;
   }
 
   .e_wheel {
@@ -255,7 +270,6 @@ const props = withDefaults(defineProps<{
     border: 2px dashed #fff;
     box-shadow: 0 0 0 4.4px #fff;
     border-radius: 50%;
-    animation: 2s run infinite linear;
   }
 
   @keyframes run {

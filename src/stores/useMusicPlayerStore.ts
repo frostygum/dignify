@@ -59,6 +59,10 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
 
   const updateSystemMetadata = () => {
     if ('mediaSession' in navigator) {
+      if (!_playingData.value) {
+        navigator.mediaSession.metadata = null;
+      }
+
       const artworks = []
 
       if (_playingData.value?.cover) {
@@ -115,6 +119,10 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
         }
       }
 
+      _player.value.onended = () => {
+        next()
+      }
+
       updateSystemMetadata();
     } catch {
       reset();
@@ -163,12 +171,9 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
       return;
     }
 
-    const latest = _queue.value.pop();
-    if (latest) {
-      _playingData.value = latest
-    } else {
-      reset();
-    }
+    pop()
+    load()
+    play()
   }
 
   const prev = () => {
@@ -201,6 +206,8 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     toggle,
     push,
     pop,
+    reset,
+    updateSystemMetadata,
     isNextAvailable,
     isPrevAvailable,
     getFormattedTimestamp,

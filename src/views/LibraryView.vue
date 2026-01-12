@@ -15,7 +15,7 @@ const player = useMusicPlayer();
 
 const { playing } = storeToRefs(player);
 
-const hadlePlayMusic = async (id: number | undefined) => {
+const handleAddToQue = async (id: number | undefined) => {
   if (!id) {
     return;
   }
@@ -39,6 +39,11 @@ const hadlePlayMusic = async (id: number | undefined) => {
     filetype: data.filetype || undefined,
     source: data.source || undefined
   });
+}
+
+const hadlePlayMusic = async (id: number | undefined) => {
+  await handleAddToQue(id);
+
   player.pop();
   player.load();
   player.play();
@@ -104,7 +109,11 @@ onMounted(() => {
             </div>
           </div>
           <div class="flex gap-2">
-            <dy-button variant="outline" size="icon_xs" @click="() => {}" disabled>
+            <dy-button
+              variant="outline"
+              size="icon_xs"
+              @click.stop="() => handleAddToQue(file.id)"
+            >
               <dy-icon class="w-5 h-5" :path="mdiMusicNotePlus" />
             </dy-button>
           </div>
