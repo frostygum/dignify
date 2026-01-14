@@ -55,7 +55,8 @@ async function getListOfTracks() {
       .select({
         id: musicTableSchema.id,
         title: musicTableSchema.title,
-        artist: musicTableSchema.artist
+        artist: musicTableSchema.artist,
+        cover: musicTableSchema.cover
       })
       .from(musicTableSchema)
 
@@ -63,7 +64,8 @@ async function getListOfTracks() {
       tracks.value.push({
         id: item.id,
         title: item.title,
-        artist: item.artist ?? ''
+        artist: item.artist ?? '',
+        cover: item.cover || undefined
       })
     });
   } catch (err) {
@@ -94,6 +96,14 @@ onMounted(() => {
           <div class="flex items-center gap-2 justify-between">
             <div>
               <div
+                v-if="typeof file.cover !== 'undefined' && file.cover != ''"
+                class="rounded-lg w-12 h-12 bg-cover bg-center flex-none"
+                :style="{
+                  backgroundImage: `url(${file.cover})`
+                }"
+              />
+              <div
+                v-else
                 class="rounded-lg bg-gray-300 w-10 h-10 flex justify-center items-center"
               >
                 <dy-icon :path="mdiFileImport" />
