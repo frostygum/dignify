@@ -4,6 +4,8 @@ import { Howl } from 'howler';
 
 import { useDateTime } from '@/hooks/useDuration';
 
+import { toast } from 'vue-sonner'
+
 export interface MusicData {
   id?: number;
   title?: string;
@@ -91,20 +93,25 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     try {
       const src = URL.createObjectURL(_playingData.value.blob);
       console.log(src)
+
       const sound = new Howl({
         src: [src],
         format: "flac",
         onloaderror: (id) => {
+          toast.warning('Error')
           reset();
           console.log("Error loading audio metadata: " + id);
         },
         onplay: () => {
+          toast.info('Play')
           _isPlaying.value = true;
         },
         onpause: () => {
+          toast.info('Stop')
           _isPlaying.value = false;
         },
         onend: () => {
+          toast.info('End')
           next()
         }
       });

@@ -27,6 +27,9 @@ import { useDialogStore } from '@/stores/useDialog'
 import { storeToRefs } from 'pinia'
 import DyButton from './components/ui/button/DyButton.vue'
 import DyIcon from './components/ui/icon/DyIcon.vue'
+import { Toaster } from '@/components/ui/sonner'
+
+import 'vue-sonner/style.css'
 
 const router = useRouter()
 const isMobile = useMobile()
@@ -62,6 +65,7 @@ const navigators: DyNavigationBottomItemProps[] = [
 </script>
 
 <template>
+  <Toaster />
   <Dialog :open="isOpen" @update:open="dialogStore.toggle">
     <DialogContent>
       <DialogHeader>
