@@ -56,6 +56,9 @@ const computedArrayTimestamp = computed(() => {
               >
                 <h3 class="font-bold text-center">{{ playing.data.title || '-' }}</h3>
                 <p class="text-center">{{ playing.data.artist || '-' }}</p>
+                <p class="text-xs text-center">
+                  {{ playing.error || '-' }}
+                </p>
               </div>
             </div>
           </div>

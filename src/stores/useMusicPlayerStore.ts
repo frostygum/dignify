@@ -24,6 +24,7 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
   const _isPlaying = shallowRef<boolean>(false);
   const _timestamp = shallowRef<number>(0);
   const _duration = shallowRef<number>(0);
+  const _error = shallowRef<string>('');
 
   // music queue
   const _queue = ref<MusicData[]>([]);
@@ -33,7 +34,8 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
       state: _isPlaying.value,
       data: _playingData.value,
       duration: _duration.value,
-      timestamp: _timestamp.value
+      timestamp: _timestamp.value,
+      error: _error.value
     }
   })
 
@@ -97,6 +99,7 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
       };
 
       _player.value.onerror = (error) => {
+        _error.value = String(error)
         reset();
         console.error("Error loading audio metadata:", error);
       };
@@ -124,7 +127,8 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
       }
 
       updateSystemMetadata();
-    } catch {
+    } catch (error) {
+      _error.value = String(error)
       reset();
     }
   }

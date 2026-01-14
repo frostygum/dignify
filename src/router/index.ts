@@ -1,4 +1,4 @@
-import { mdiChevronDown, mdiChevronLeft, mdiDotsVertical, mdiMagnify } from '@mdi/js'
+import { mdiChevronDown, mdiChevronLeft, mdiMagnify } from '@mdi/js'
 import { createRouter, createWebHistory } from 'vue-router'
 
 interface RouteMetaNavigationItem {
@@ -45,12 +45,8 @@ export default createRouter({
         navigation: {
           left: {
             icon: mdiChevronDown,
-            route: '/configurations',
-          },
-          right: {
-            icon: mdiDotsVertical,
-            route: '/configurations',
-          },
+            route: '/',
+          }
         },
       },
     },
