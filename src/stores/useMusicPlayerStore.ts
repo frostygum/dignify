@@ -98,10 +98,37 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
         }
       };
 
-      _player.value.onerror = (error) => {
-        _error.value = String(error)
+      _player.value.onerror = (e) => {
+        const error = _player.value.error;
+        if (error) {
+          // Attempt to get the message (may be empty in some browsers)
+          const errorMessage = `${error.message || 'No specific message available'}`;
+          let errorCause = 'An unknown error occurred.';
+
+          // Use a switch statement on the error code for reliable messaging
+          switch (error.code) {
+            case MediaError.MEDIA_ERR_ABORTED:
+              errorCause = 'Playback aborted (user or browser action)';
+              break;
+            case MediaError.MEDIA_ERR_NETWORK:
+              errorCause = 'A network error occurred while fetching the audio.'
+              break;
+            case MediaError.MEDIA_ERR_DECODE:
+              errorCause = 'An error occurred while decoding the audio.'
+              break;
+            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+              errorCause = 'Audio source is missing or is an unsupported format.'
+              break;
+            default:
+              errorCause = 'An unknown error occurred.'
+              break;
+          }
+
+          _error.value = `message: [${errorMessage}] code: [${error.code}] cause: [${errorCause}]`
+        }
+
         reset();
-        console.error("Error loading audio metadata:", error);
+        console.error("Error loading audio metadata:", e);
       };
 
       _player.value.ontimeupdate = () => {
