@@ -205,7 +205,7 @@ const handleClearAllMusicData = async () => {
                   class="hidden"
                   ref="_fileInputRef"
                   type="file"
-                  accept=".wav,.aif,.aiff,.flac,.alac,.aac,.ogg,.mp3"
+                  accept=".wav,.aif,.aiff,.flac,.alac,.aac,.ogg,.mp3,.m4a"
                   multiple
                   @change="handleFileImportChange"
                 />

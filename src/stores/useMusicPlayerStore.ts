@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
-import { Howl } from 'howler';
 
 import { useDateTime } from '@/hooks/useDuration';
-
-import { toast } from 'vue-sonner'
 
 export interface MusicData {
   id?: number;
@@ -91,66 +88,40 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     }
 
     try {
-      const src = URL.createObjectURL(_playingData.value.blob);
-      console.log(src)
+      _player.value.src = URL.createObjectURL(_playingData.value.blob);
 
-      const sound = new Howl({
-        src: [src],
-        format: ["flac", "mp3"],
-        html5: true,
-        onloaderror: (id) => {
-          toast.warning('Error')
-          reset();
-          console.log("Error loading audio metadata: " + id);
-        },
-        onplay: () => {
-          toast.info('Play')
-          _isPlaying.value = true;
-        },
-        onpause: () => {
-          toast.info('Stop')
-          _isPlaying.value = false;
-        },
-        onend: () => {
-          toast.info('End')
-          next()
+      _player.value.ondurationchange = () => {
+        if (_player.value?.duration) {
+          _duration.value = Number.parseInt(_player.value?.duration.toFixed(0));
         }
-      });
+      };
 
+      _player.value.onerror = (error) => {
+        reset();
+        console.error("Error loading audio metadata:", error);
+      };
 
-      sound.play();
+      _player.value.ontimeupdate = () => {
+        if (_player.value?.currentTime) {
+          _timestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
+        }
+      }
 
-      // _player.value.ondurationchange = () => {
-      //   if (_player.value?.duration) {
-      //     _duration.value = Number.parseInt(_player.value?.duration.toFixed(0));
-      //   }
-      // };
+      _player.value.onplay = () => {
+        if (_player.value) {
+          _isPlaying.value = true;
+        }
+      }
 
-      // _player.value.onerror = (error) => {
-        
-      // };
+      _player.value.onpause = () => {
+        if (_player.value) {
+          _isPlaying.value = false;
+        }
+      }
 
-      // _player.value.ontimeupdate = () => {
-      //   if (_player.value?.currentTime) {
-      //     _timestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
-      //   }
-      // }
-
-      // _player.value.onplay = () => {
-      //   if (_player.value) {
-      //     _isPlaying.value = true;
-      //   }
-      // }
-
-      // _player.value.onpause = () => {
-      //   if (_player.value) {
-      //     _isPlaying.value = false;
-      //   }
-      // }
-
-      // _player.value.onended = () => {
-      //   next()
-      // }
+      _player.value.onended = () => {
+        next()
+      }
 
       updateSystemMetadata();
     } catch {

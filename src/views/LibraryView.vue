@@ -46,7 +46,7 @@ const hadlePlayMusic = async (id: number | undefined) => {
 
   player.pop();
   player.load();
-  // player.play();
+  player.play();
 }
 
 async function getListOfTracks() {
