@@ -96,7 +96,8 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
 
       const sound = new Howl({
         src: [src],
-        format: "flac",
+        format: ["flac", "mp3"],
+        html5: true,
         onloaderror: (id) => {
           toast.warning('Error')
           reset();
