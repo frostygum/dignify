@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref, shallowRef } from 'vue';
+import { Howl } from 'howler';
 
 import { useDateTime } from '@/hooks/useDuration';
 
@@ -88,40 +89,60 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     }
 
     try {
-      _player.value.src = URL.createObjectURL(_playingData.value.blob);
-
-      _player.value.ondurationchange = () => {
-        if (_player.value?.duration) {
-          _duration.value = Number.parseInt(_player.value?.duration.toFixed(0));
-        }
-      };
-
-      _player.value.onerror = (error) => {
-        reset();
-        console.error("Error loading audio metadata:", error);
-      };
-
-      _player.value.ontimeupdate = () => {
-        if (_player.value?.currentTime) {
-          _timestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
-        }
-      }
-
-      _player.value.onplay = () => {
-        if (_player.value) {
+      const src = URL.createObjectURL(_playingData.value.blob);
+      console.log(src)
+      const sound = new Howl({
+        src: [src],
+        format: "flac",
+        onloaderror: (id) => {
+          reset();
+          console.log("Error loading audio metadata: " + id);
+        },
+        onplay: () => {
           _isPlaying.value = true;
-        }
-      }
-
-      _player.value.onpause = () => {
-        if (_player.value) {
+        },
+        onpause: () => {
           _isPlaying.value = false;
+        },
+        onend: () => {
+          next()
         }
-      }
+      });
 
-      _player.value.onended = () => {
-        next()
-      }
+
+      sound.play();
+
+      // _player.value.ondurationchange = () => {
+      //   if (_player.value?.duration) {
+      //     _duration.value = Number.parseInt(_player.value?.duration.toFixed(0));
+      //   }
+      // };
+
+      // _player.value.onerror = (error) => {
+        
+      // };
+
+      // _player.value.ontimeupdate = () => {
+      //   if (_player.value?.currentTime) {
+      //     _timestamp.value = Number.parseInt(_player.value.currentTime.toFixed(0));
+      //   }
+      // }
+
+      // _player.value.onplay = () => {
+      //   if (_player.value) {
+      //     _isPlaying.value = true;
+      //   }
+      // }
+
+      // _player.value.onpause = () => {
+      //   if (_player.value) {
+      //     _isPlaying.value = false;
+      //   }
+      // }
+
+      // _player.value.onended = () => {
+      //   next()
+      // }
 
       updateSystemMetadata();
     } catch {
