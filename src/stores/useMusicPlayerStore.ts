@@ -90,7 +90,22 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
     }
 
     try {
-      _player.value.src = URL.createObjectURL(_playingData.value.blob);
+      while (_player.value.firstChild) {
+        _player.value.removeChild(_player.value.firstChild);
+      }
+
+      // _player.value.src = URL.createObjectURL(_playingData.value.blob);
+      const src = URL.createObjectURL(_playingData.value.blob);
+      console.log(src)
+      
+      const sourceElement: HTMLSourceElement = document.createElement("source");
+      sourceElement.src = src;
+      sourceElement.type = _playingData.value.filetype ?? 'audio/mp3';
+      _player.value.appendChild(sourceElement);
+
+      _player.value.load();
+
+      console.log(_player.value.firstChild)
 
       _player.value.ondurationchange = () => {
         if (_player.value?.duration) {
@@ -155,6 +170,7 @@ export const useMusicPlayer = defineStore('MUSIC_PLAYER', () => {
 
       updateSystemMetadata();
     } catch (error) {
+      console.error(error)
       _error.value = String(error)
       reset();
     }
